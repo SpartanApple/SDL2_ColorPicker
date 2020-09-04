@@ -1,10 +1,11 @@
 #include <SDL2/SDL.h>
 #include <math.h>
+#include <stdbool.h>
 
-
-
+// Draws horiontal line on the color selector bar
 void drawHorizontalZone(SDL_Renderer *renderer, int position)
 {
+
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
 	SDL_Rect r1;
@@ -26,13 +27,14 @@ void drawHorizontalZone(SDL_Renderer *renderer, int position)
 	SDL_RenderFillRect(renderer, &r2);
 }
 
+// Checks if mouse position is within bounds of specific zone
 bool checkBounds(int xMin, int xMax, int yMin, int yMax, int x, int y)
 {
 	return (x > xMin && x < xMax && y > yMin && y < yMax);
 }
 
-
-void colorSquareCrossHairs(int width, int widthSpace, SDL_Renderer *renderer, int sizeOfColorBar, int mouseX, int mouseY)
+// Draws the cross Hairs on the color square of where the current mouse position is
+void colorSquareCrossHairs(SDL_Renderer *renderer, int width, int widthSpace, int sizeOfColorBar, int mouseX, int mouseY)
 {
 	// Vertical white outline
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
@@ -97,7 +99,7 @@ void colorSquareCrossHairs(int width, int widthSpace, SDL_Renderer *renderer, in
 }
 
 
-void colorSquare(float red, float green, float blue, SDL_Renderer *renderer, int sizeOfColorBar, int width, int widthSpace)
+void colorSquare(SDL_Renderer *renderer, float red, float green, float blue, int sizeOfColorBar, int width, int widthSpace)
 {
 	int topLeft = width + widthSpace;
 
@@ -152,11 +154,9 @@ void colorSquare(float red, float green, float blue, SDL_Renderer *renderer, int
 
 }
 		
-void colorOfCrossHairs(int *redCH, int *greenCH, int *blueCH, float red, float green, float blue, SDL_Renderer *renderer, int sizeOfColorBar, int width, int widthSpace, int mouseX, int mouseY)
+void colorOfCrossHairs(SDL_Renderer *renderer, int *redCH, int *greenCH, int *blueCH, float red, float green, float blue, int sizeOfColorBar, int width, int widthSpace, int mouseX, int mouseY)
 {
 	
-	int topLeft = width + widthSpace;
-
 	float xDifferenceRed = 255.0 - red;
 	float xDifferenceGreen = 255.0 - green;
 	float xDifferenceBlue = 255.0 - blue;
@@ -196,7 +196,7 @@ void colorOfCrossHairs(int *redCH, int *greenCH, int *blueCH, float red, float g
 
 			currentRed -= xRedDelta;
 			currentGreen -= xGreenDelta;
-			currentBlue -= xBlueDelta;
+				currentBlue -= xBlueDelta;
 
 			currentRed = currentRed > 255.0 ? 255 : currentRed;
 			currentGreen = currentGreen > 255.0 ? 255 : currentGreen;
@@ -242,7 +242,7 @@ void positionColor(float *red, float *green, float *blue, int position, float nu
 	*blue = tmpBlue;
 }
 
-void verticalColorSelector(float red, float green, float blue, int segmented, SDL_Renderer *renderer, int width, float num, int sizeOfColorBar)
+void verticalColorSelector(SDL_Renderer *renderer, float red, float green, float blue, int segmented, int width, float num, int sizeOfColorBar)
 {
 	for(int i = 0; i < sizeOfColorBar; i++)
 	{
@@ -274,20 +274,46 @@ void verticalColorSelector(float red, float green, float blue, int segmented, SD
 	}
 }
 
-int main(int argc, char **argv)
+void oDraw(SDL_Renderer *renderer, int topLeftY, int topLeftX, int red, int green, int blue)
+{
+	SDL_SetRenderDrawColor(renderer, red, green, blue, 255);
+	
+	SDL_RenderDrawPoint(renderer, topLeftX + 35, topLeftY + 8);
+	SDL_RenderDrawPoint(renderer, topLeftX + 36, topLeftY + 8);
+	SDL_RenderDrawPoint(renderer, topLeftX + 37, topLeftY + 8);
+	SDL_RenderDrawPoint(renderer, topLeftX + 38, topLeftY + 8);
+	SDL_RenderDrawPoint(renderer, topLeftX + 37, topLeftY + 9);
+	SDL_RenderDrawPoint(renderer, topLeftX + 38, topLeftY + 9);
+	SDL_RenderDrawPoint(renderer, topLeftX + 39, topLeftY + 10);
+
+
+}
+
+int drawButton(SDL_Renderer *renderer, int buttonWidth, int buttonHeight, int buttonTopLeftY, int buttonTopLeftX, int buttonRed, int buttonGreen, int buttonBlue)
+{
+    SDL_SetRenderDrawColor(renderer, buttonRed, buttonGreen, buttonBlue, 255);
+
+	SDL_Rect r;
+   	r.x = buttonTopLeftX;
+	r.y = buttonTopLeftY;
+	r.w = buttonWidth;
+    r.h = buttonHeight;
+	
+	SDL_RenderFillRect(renderer, &r);
+
+	return 0;
+}
+
+int colorPicker(int *finalRed, int *finalGreen, int *finalBlue)
 {
 	bool leftMouseButtonDown = false;
 	bool leftMouseButtonDownSquare = false;
-    bool quit = false;
 
 	int width = 30;
 
 	int sizeOfCurrentColor = 60;
 
 	int position = 0;
-	
-	int topLeft = 0;
-	int bottonRight = 0;
 
 	float red = 0; // Starting Color
 	float green = 0;
@@ -305,9 +331,12 @@ int main(int argc, char **argv)
 
 	int widthSpace = 10;
 
+	int redCH = 0;
+	int greenCH = 0;
+	int blueCH = 0;
+
     // Initialize SDL
-    SDL_Init(SDL_INIT_VIDEO);
-	
+    SDL_Init(SDL_INIT_VIDEO);	
 
     // Create a SDL window
     SDL_Window *window = SDL_CreateWindow("Color Picker", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, sizeOfColorBar + width + widthSpace, sizeOfColorBar + colorSpaceBottom, SDL_WINDOW_OPENGL);
@@ -333,7 +362,7 @@ int main(int argc, char **argv)
 
 		SDL_RenderClear(renderer);
 
-		verticalColorSelector(red, green, blue, segmented, renderer, width, num, sizeOfColorBar);
+		verticalColorSelector(renderer, red, green, blue, segmented, width, num, sizeOfColorBar);
 
 		switch (event.type)
         {
@@ -342,9 +371,11 @@ int main(int argc, char **argv)
                 break;
             case SDL_MOUSEBUTTONUP:
                 if (event.button.button == SDL_BUTTON_LEFT)
+				{
                     leftMouseButtonDown = false;
                     leftMouseButtonDownSquare = false;
-                break;
+                	break;
+				}
             case SDL_MOUSEBUTTONDOWN:
                 if (event.button.button == SDL_BUTTON_LEFT)
 				{
@@ -359,6 +390,10 @@ int main(int argc, char **argv)
 					{
                     	leftMouseButtonDownSquare = true;
 					}
+					if(checkBounds(sizeOfColorBar - (width+widthSpace), sizeOfColorBar + width + widthSpace, sizeOfColorBar + widthSpace, sizeOfColorBar + widthSpace + width, xPos, yPos))
+					{
+						running = false;
+					} 
 				}
             case SDL_MOUSEMOTION:
 				if (leftMouseButtonDown)
@@ -377,19 +412,18 @@ int main(int argc, char **argv)
 	
 		positionColor(&red, &green, &blue, position, num, segmented);
 		
-		colorSquare(red, green, blue, renderer, sizeOfColorBar, width, widthSpace);
+		colorSquare(renderer, red, green, blue, sizeOfColorBar, width, widthSpace);
 		
-		colorSquareCrossHairs(width, widthSpace, renderer, sizeOfColorBar, mouseX, mouseY);
+		colorSquareCrossHairs(renderer, width, widthSpace, sizeOfColorBar, mouseX, mouseY);
 
-		int redCH = 0;
-		int greenCH = 0;
-		int blueCH = 0;
+		redCH = 0;
+		greenCH = 0;
+		blueCH = 0;
 
-		colorOfCrossHairs(&redCH, &greenCH, &blueCH, red, green, blue, renderer, sizeOfColorBar, width, widthSpace, mouseX, mouseY);
+		colorOfCrossHairs(renderer, &redCH, &greenCH, &blueCH, red, green, blue, sizeOfColorBar, width, widthSpace, mouseX, mouseY);
 	
-		printf("(R, G, B) = (%d, %d, %d)\n", redCH, greenCH, blueCH);
-
     	SDL_SetRenderDrawColor(renderer, redCH, greenCH, blueCH, 255);
+		
 
 	    SDL_Rect currentColorRectangle;
    		currentColorRectangle.x = width + widthSpace;
@@ -398,6 +432,16 @@ int main(int argc, char **argv)
     	currentColorRectangle.h = width;
 
 		SDL_RenderFillRect(renderer, &currentColorRectangle);
+		
+
+		int buttonWidth = 3 * (width+widthSpace);
+		int sucess = drawButton(renderer, buttonWidth, width, sizeOfColorBar + widthSpace, sizeOfColorBar + width - buttonWidth, 150, 150, 150);
+		if(sucess != 0)
+		{
+			fprintf(stderr, "Drawing Button not sucessful");
+		}		
+
+		oDraw(renderer, sizeOfColorBar + widthSpace, sizeOfColorBar + width - buttonWidth, 255, 255, 255);
 
 
     	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
@@ -409,6 +453,31 @@ int main(int argc, char **argv)
     SDL_DestroyWindow(window);
     SDL_Quit();
 
+	*finalRed = redCH; 
+	*finalGreen = greenCH;
+	*finalBlue = blueCH;
+
     return 0;
+}
+
+
+// Remove main and integrate with program by calling colorPicker function
+int main()
+{
+	int red   = 0;
+	int green = 0;
+	int blue  = 0;
+
+	int sucess = colorPicker(&red, &green, &blue);
+	
+	//Failure
+	if(sucess != 0)
+	{
+		fprintf(stderr, "Something went wrong with colorPicker\n");
+	}
+
+	printf("(R, G, B) = (%d, %d, %d)\n", red, green, blue);
+
+	return 0;
 }
 
