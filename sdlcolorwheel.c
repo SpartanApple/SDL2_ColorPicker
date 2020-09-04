@@ -309,13 +309,17 @@ int colorPicker(int *finalRed, int *finalGreen, int *finalBlue)
 	bool leftMouseButtonDown = false;
 	bool leftMouseButtonDownSquare = false;
 
+	// Width of vertical color bar
 	int width = 30;
+	int currentColorHeight = width;
 
 	int sizeOfCurrentColor = 60;
 
+	// Position of mouse (Y-Axis) on vertical color bar
 	int position = 0;
 
-	float red = 0; // Starting Color
+	// Colors initiated
+	float red = 0;
 	float green = 0;
 	float blue = 0;
 
@@ -324,13 +328,17 @@ int colorPicker(int *finalRed, int *finalGreen, int *finalBlue)
 	int segmented = sizeOfColorBar/numSections;
 	float num = 255.0/((float)sizeOfColorBar/(float)numSections);
 
+	// Width colorExample takes up at bottom of screen
 	int colorSpaceBottom = 40;
 
+	// Mouse position on color square
 	int mouseX = 0;
 	int mouseY = 0;
 
+	// Gap between vertial color bar and color square
 	int widthSpace = 10;
 
+	// Stores color value "cross-hairs" are on in the color square
 	int redCH = 0;
 	int greenCH = 0;
 	int blueCH = 0;
@@ -407,7 +415,7 @@ int colorPicker(int *finalRed, int *finalGreen, int *finalBlue)
 				}
                 break;
         }
-
+		position = position > sizeOfColorBar ? sizeOfColorBar : position;
 		drawHorizontalZone(renderer, position);
 	
 		positionColor(&red, &green, &blue, position, num, segmented);
@@ -426,7 +434,7 @@ int colorPicker(int *finalRed, int *finalGreen, int *finalBlue)
 		
 
 	    SDL_Rect currentColorRectangle;
-   		currentColorRectangle.x = width + widthSpace;
+   		currentColorRectangle.x = currentColorHeight + widthSpace;
 	    currentColorRectangle.y = sizeOfColorBar + 10;
 	    currentColorRectangle.w = sizeOfCurrentColor;
     	currentColorRectangle.h = width;
