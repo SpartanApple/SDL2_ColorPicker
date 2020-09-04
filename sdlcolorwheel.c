@@ -34,20 +34,20 @@ bool checkBounds(int xMin, int xMax, int yMin, int yMax, int x, int y)
 }
 
 // Draws the cross Hairs on the color square of where the current mouse position is
-void colorSquareCrossHairs(SDL_Renderer *renderer, int width, int widthSpace, int sizeOfColorBar, int mouseX, int mouseY)
+void colorSquareCrossHairs(SDL_Renderer *renderer, int colorBarWidth, int colorBarWidthSpace, int colorBarHeight, int mouseX, int mouseY)
 {
 	// Vertical white outline
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
 	SDL_Rect rwv;
    	rwv.x = mouseX-1;
-	if(mouseX < width+widthSpace)
+	if(mouseX < colorBarWidth+colorBarWidthSpace)
 	{
-		rwv.x = width+widthSpace;
+		rwv.x = colorBarWidth+colorBarWidthSpace;
 	}
 	rwv.y = 0;
 	rwv.w = 3;
-   	rwv.h = sizeOfColorBar;
+   	rwv.h = colorBarHeight;
 
 	SDL_RenderFillRect(renderer, &rwv);
 
@@ -55,13 +55,13 @@ void colorSquareCrossHairs(SDL_Renderer *renderer, int width, int widthSpace, in
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
 	SDL_Rect rwh;
-   	rwh.x = width+widthSpace;
+   	rwh.x = colorBarWidth+colorBarWidthSpace;
 	rwh.y = mouseY-1;
-	if(mouseY > sizeOfColorBar)
+	if(mouseY > colorBarHeight)
 	{
-		rwh.y = sizeOfColorBar-2;
+		rwh.y = colorBarHeight-2;
 	}
-	rwh.w = sizeOfColorBar;
+	rwh.w = colorBarHeight;
    	rwh.h = 3;
 
 	SDL_RenderFillRect(renderer, &rwh);
@@ -72,13 +72,13 @@ void colorSquareCrossHairs(SDL_Renderer *renderer, int width, int widthSpace, in
 
 	SDL_Rect rbv;
    	rbv.x = mouseX;
-	if(mouseX < width+widthSpace)
+	if(mouseX < colorBarWidth+colorBarWidthSpace)
 	{
-		rbv.x = width+widthSpace;
+		rbv.x = colorBarWidth+colorBarWidthSpace;
 	}
 	rbv.y = 0;
 	rbv.w = 1;
-   	rbv.h = sizeOfColorBar;
+   	rbv.h = colorBarHeight;
 
 	SDL_RenderFillRect(renderer, &rbv);
 
@@ -86,30 +86,30 @@ void colorSquareCrossHairs(SDL_Renderer *renderer, int width, int widthSpace, in
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 
 	SDL_Rect rbh;
-   	rbh.x = width+widthSpace;
+   	rbh.x = colorBarWidth+colorBarWidthSpace;
 	rbh.y = mouseY;
-	if(mouseY > sizeOfColorBar)
+	if(mouseY > colorBarHeight)
 	{
-		rbh.y = sizeOfColorBar-1;
+		rbh.y = colorBarHeight-1;
 	}
-	rbh.w = sizeOfColorBar;
+	rbh.w = colorBarHeight;
    	rbh.h = 1;
 
 	SDL_RenderFillRect(renderer, &rbh);
 }
 
 
-void colorSquare(SDL_Renderer *renderer, float red, float green, float blue, int sizeOfColorBar, int width, int widthSpace)
+void colorSquare(SDL_Renderer *renderer, float red, float green, float blue, int colorBarHeight, int colorBarWidth, int colorBarWidthSpace)
 {
-	int topLeft = width + widthSpace;
+	int topLeft = colorBarWidth + colorBarWidthSpace;
 
 	float xDifferenceRed = 255.0 - red;
 	float xDifferenceGreen = 255.0 - green;
 	float xDifferenceBlue = 255.0 - blue;
 	
-	float xRedDelta = xDifferenceRed/sizeOfColorBar;
-	float xGreenDelta = xDifferenceGreen/sizeOfColorBar;
-	float xBlueDelta = xDifferenceBlue/sizeOfColorBar;		
+	float xRedDelta = xDifferenceRed/colorBarHeight;
+	float xGreenDelta = xDifferenceGreen/colorBarHeight;
+	float xBlueDelta = xDifferenceBlue/colorBarHeight;		
 			
 	xRedDelta = xDifferenceRed == 0 ?  0 : xRedDelta;
 	xGreenDelta = xDifferenceGreen == 0 ?  0 : xGreenDelta;
@@ -119,17 +119,17 @@ void colorSquare(SDL_Renderer *renderer, float red, float green, float blue, int
 	float yDifferenceGreen = 255.0;
 	float yDifferenceBlue = 255.0;
 
-	float yRedDelta = yDifferenceRed/sizeOfColorBar;
-	float yGreenDelta = yDifferenceGreen/sizeOfColorBar;
-	float yBlueDelta = yDifferenceBlue/sizeOfColorBar;
+	float yRedDelta = yDifferenceRed/colorBarHeight;
+	float yGreenDelta = yDifferenceGreen/colorBarHeight;
+	float yBlueDelta = yDifferenceBlue/colorBarHeight;
 	
 	float currentRed = 255.0;
 	float currentGreen = 255.0;
 	float currentBlue = 255.0;
 
-	for(int y = 0; y < sizeOfColorBar; y++)
+	for(int y = 0; y < colorBarHeight; y++)
 	{
-		for(int x = 0; x < sizeOfColorBar; x++)
+		for(int x = 0; x < colorBarHeight; x++)
 		{
 			SDL_SetRenderDrawColor(renderer, currentRed, currentGreen, currentBlue, 255);
 			SDL_RenderDrawPoint(renderer, topLeft + x, y);
@@ -154,16 +154,16 @@ void colorSquare(SDL_Renderer *renderer, float red, float green, float blue, int
 
 }
 		
-void colorOfCrossHairs(SDL_Renderer *renderer, int *redCH, int *greenCH, int *blueCH, float red, float green, float blue, int sizeOfColorBar, int width, int widthSpace, int mouseX, int mouseY)
+void colorOfCrossHairs(SDL_Renderer *renderer, int *redCH, int *greenCH, int *blueCH, float red, float green, float blue, int colorBarHeight, int colorBarWidth, int colorBarWidthSpace, int mouseX, int mouseY)
 {
 	
 	float xDifferenceRed = 255.0 - red;
 	float xDifferenceGreen = 255.0 - green;
 	float xDifferenceBlue = 255.0 - blue;
 	
-	float xRedDelta = xDifferenceRed/sizeOfColorBar;
-	float xGreenDelta = xDifferenceGreen/sizeOfColorBar;
-	float xBlueDelta = xDifferenceBlue/sizeOfColorBar;		
+	float xRedDelta = xDifferenceRed/colorBarHeight;
+	float xGreenDelta = xDifferenceGreen/colorBarHeight;
+	float xBlueDelta = xDifferenceBlue/colorBarHeight;		
 			
 	xRedDelta = xDifferenceRed == 0 ?  0 : xRedDelta;
 	xGreenDelta = xDifferenceGreen == 0 ?  0 : xGreenDelta;
@@ -173,20 +173,20 @@ void colorOfCrossHairs(SDL_Renderer *renderer, int *redCH, int *greenCH, int *bl
 	float yDifferenceGreen = 255.0;
 	float yDifferenceBlue = 255.0;
 
-	float yRedDelta = yDifferenceRed/sizeOfColorBar;
-	float yGreenDelta = yDifferenceGreen/sizeOfColorBar;
-	float yBlueDelta = yDifferenceBlue/sizeOfColorBar;
+	float yRedDelta = yDifferenceRed/colorBarHeight;
+	float yGreenDelta = yDifferenceGreen/colorBarHeight;
+	float yBlueDelta = yDifferenceBlue/colorBarHeight;
 	
 	float currentRed = 255.0;
 	float currentGreen = 255.0;
 	float currentBlue = 255.0;
 
-	for(int y = 0; y < sizeOfColorBar; y++)
+	for(int y = 0; y < colorBarHeight; y++)
 	{
-		for(int x = 0; x < sizeOfColorBar; x++)
+		for(int x = 0; x < colorBarHeight; x++)
 		{
 
-			if(x == mouseX-width-widthSpace && y == mouseY)
+			if(x == mouseX-colorBarWidth-colorBarWidthSpace && y == mouseY)
 			{
 				*redCH = currentRed;
 				*greenCH = currentGreen;
@@ -242,16 +242,16 @@ void positionColor(float *red, float *green, float *blue, int position, float nu
 	*blue = tmpBlue;
 }
 
-void verticalColorSelector(SDL_Renderer *renderer, float red, float green, float blue, int segmented, int width, float num, int sizeOfColorBar)
+void verticalColorSelector(SDL_Renderer *renderer, float red, float green, float blue, int segmented, int colorBarWidth, float num, int colorBarHeight)
 {
-	for(int i = 0; i < sizeOfColorBar; i++)
+	for(int i = 0; i < colorBarHeight; i++)
 	{
     	SDL_SetRenderDrawColor(renderer, (int)red, (int)green, (int)blue, 255);
 
 	    SDL_Rect r;
    		r.x = 0;
 	    r.y = i;
-	    r.w = width;
+	    r.w = colorBarWidth;
     	r.h = 1;
 			
 		blue = i <= segmented ? blue + num : blue;
@@ -310,8 +310,11 @@ int colorPicker(int *finalRed, int *finalGreen, int *finalBlue)
 	bool leftMouseButtonDownSquare = false;
 
 	// Width of vertical color bar
-	int width = 30;
-	int currentColorHeight = width;
+	int colorBarWidth = 30;
+	int currentColorHeight = colorBarWidth;
+
+	// Height of vertical color bar
+	int colorBarHeight = 500;
 
 	int sizeOfCurrentColor = 60;
 
@@ -323,10 +326,10 @@ int colorPicker(int *finalRed, int *finalGreen, int *finalBlue)
 	float green = 0;
 	float blue = 0;
 
-	int sizeOfColorBar = 400;
+	// Vertical color bar changes in scale
 	int numSections = 6;
-	int segmented = sizeOfColorBar/numSections;
-	float num = 255.0/((float)sizeOfColorBar/(float)numSections);
+	int segmented = colorBarHeight/numSections;
+	float num = 255.0/((float)colorBarHeight/(float)numSections);
 
 	// Width colorExample takes up at bottom of screen
 	int colorSpaceBottom = 40;
@@ -336,7 +339,7 @@ int colorPicker(int *finalRed, int *finalGreen, int *finalBlue)
 	int mouseY = 0;
 
 	// Gap between vertial color bar and color square
-	int widthSpace = 10;
+	int colorBarWidthSpace = 10;
 
 	// Stores color value "cross-hairs" are on in the color square
 	int redCH = 0;
@@ -347,7 +350,7 @@ int colorPicker(int *finalRed, int *finalGreen, int *finalBlue)
     SDL_Init(SDL_INIT_VIDEO);	
 
     // Create a SDL window
-    SDL_Window *window = SDL_CreateWindow("Color Picker", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, sizeOfColorBar + width + widthSpace, sizeOfColorBar + colorSpaceBottom, SDL_WINDOW_OPENGL);
+    SDL_Window *window = SDL_CreateWindow("Color Picker", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, colorBarHeight + colorBarWidth + colorBarWidthSpace, colorBarHeight + colorSpaceBottom, SDL_WINDOW_OPENGL);
 
     // Create a renderer (accelerated and in sync with the display refresh rate)
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
@@ -370,7 +373,7 @@ int colorPicker(int *finalRed, int *finalGreen, int *finalBlue)
 
 		SDL_RenderClear(renderer);
 
-		verticalColorSelector(renderer, red, green, blue, segmented, width, num, sizeOfColorBar);
+		verticalColorSelector(renderer, red, green, blue, segmented, colorBarWidth, num, colorBarHeight);
 
 		switch (event.type)
         {
@@ -387,18 +390,19 @@ int colorPicker(int *finalRed, int *finalGreen, int *finalBlue)
             case SDL_MOUSEBUTTONDOWN:
                 if (event.button.button == SDL_BUTTON_LEFT)
 				{
+					// Used for bounds checking (within which section)
 					int xPos = event.motion.x;
 					int yPos = event.motion.y;
 
-					if(checkBounds(0, width, 0, sizeOfColorBar, xPos, yPos))
+					if(checkBounds(0, colorBarWidth, 0, colorBarHeight, xPos, yPos))
 					{
                     	leftMouseButtonDown = true;
 					}
-					if(checkBounds(width+widthSpace, width+widthSpace + sizeOfColorBar, 0, sizeOfColorBar, xPos, yPos))
+					if(checkBounds(colorBarWidth+colorBarWidthSpace, colorBarWidth+colorBarWidthSpace + colorBarHeight, 0, colorBarHeight, xPos, yPos))
 					{
                     	leftMouseButtonDownSquare = true;
 					}
-					if(checkBounds(sizeOfColorBar - (width+widthSpace), sizeOfColorBar + width + widthSpace, sizeOfColorBar + widthSpace, sizeOfColorBar + widthSpace + width, xPos, yPos))
+					if(checkBounds(colorBarHeight - (colorBarWidth+colorBarWidthSpace), colorBarHeight + colorBarWidth + colorBarWidthSpace, colorBarHeight + colorBarWidthSpace, colorBarHeight + colorBarWidthSpace + colorBarWidth, xPos, yPos))
 					{
 						running = false;
 					} 
@@ -415,41 +419,41 @@ int colorPicker(int *finalRed, int *finalGreen, int *finalBlue)
 				}
                 break;
         }
-		position = position > sizeOfColorBar ? sizeOfColorBar : position;
+		position = position > colorBarHeight ? colorBarHeight : position;
 		drawHorizontalZone(renderer, position);
 	
 		positionColor(&red, &green, &blue, position, num, segmented);
 		
-		colorSquare(renderer, red, green, blue, sizeOfColorBar, width, widthSpace);
+		colorSquare(renderer, red, green, blue, colorBarHeight, colorBarWidth, colorBarWidthSpace);
 		
-		colorSquareCrossHairs(renderer, width, widthSpace, sizeOfColorBar, mouseX, mouseY);
+		colorSquareCrossHairs(renderer, colorBarWidth, colorBarWidthSpace, colorBarHeight, mouseX, mouseY);
 
 		redCH = 0;
 		greenCH = 0;
 		blueCH = 0;
 
-		colorOfCrossHairs(renderer, &redCH, &greenCH, &blueCH, red, green, blue, sizeOfColorBar, width, widthSpace, mouseX, mouseY);
+		colorOfCrossHairs(renderer, &redCH, &greenCH, &blueCH, red, green, blue, colorBarHeight, colorBarWidth, colorBarWidthSpace, mouseX, mouseY);
 	
     	SDL_SetRenderDrawColor(renderer, redCH, greenCH, blueCH, 255);
 		
 
 	    SDL_Rect currentColorRectangle;
-   		currentColorRectangle.x = currentColorHeight + widthSpace;
-	    currentColorRectangle.y = sizeOfColorBar + 10;
+   		currentColorRectangle.x = currentColorHeight + colorBarWidthSpace;
+	    currentColorRectangle.y = colorBarHeight + 10;
 	    currentColorRectangle.w = sizeOfCurrentColor;
-    	currentColorRectangle.h = width;
+    	currentColorRectangle.h = colorBarWidth;
 
 		SDL_RenderFillRect(renderer, &currentColorRectangle);
 		
 
-		int buttonWidth = 3 * (width+widthSpace);
-		int sucess = drawButton(renderer, buttonWidth, width, sizeOfColorBar + widthSpace, sizeOfColorBar + width - buttonWidth, 150, 150, 150);
+		int buttonWidth = 3 * (colorBarWidth+colorBarWidthSpace);
+		int sucess = drawButton(renderer, buttonWidth, colorBarWidth, colorBarHeight + colorBarWidthSpace, colorBarHeight + colorBarWidth - buttonWidth, 150, 150, 150);
 		if(sucess != 0)
 		{
 			fprintf(stderr, "Drawing Button not sucessful");
 		}		
 
-		oDraw(renderer, sizeOfColorBar + widthSpace, sizeOfColorBar + width - buttonWidth, 255, 255, 255);
+		oDraw(renderer, colorBarHeight + colorBarWidthSpace, colorBarHeight + colorBarWidth - buttonWidth, 255, 255, 255);
 
 
     	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
