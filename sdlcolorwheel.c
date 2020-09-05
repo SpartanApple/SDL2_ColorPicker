@@ -9,6 +9,12 @@ struct color {
 	uint8_t blue;
 };
 
+struct mousePosition {
+	uint32_t x;
+	uint32_t y;
+
+};
+
 
 // Draws horiontal line on the color selector bar
 void drawHorizontalZone(SDL_Renderer *renderer, int position)
@@ -42,14 +48,14 @@ bool checkBounds(int xMin, int xMax, int yMin, int yMax, int x, int y)
 }
 
 // Draws the cross Hairs on the color square of where the current mouse position is
-void colorSquareCrossHairs(SDL_Renderer *renderer, int colorBarWidth, int colorBarWidthSpace, int colorBarHeight, int mouseX, int mouseY)
+void colorSquareCrossHairs(SDL_Renderer *renderer, int colorBarWidth, int colorBarWidthSpace, int colorBarHeight, struct mousePosition currentPos)
 {
 	// Vertical white outline
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
 	SDL_Rect rwv;
-   	rwv.x = mouseX-1;
-	if(mouseX < colorBarWidth+colorBarWidthSpace)
+   	rwv.x = currentPos.x - 1;
+	if(currentPos.x < colorBarWidth + colorBarWidthSpace)
 	{
 		rwv.x = colorBarWidth+colorBarWidthSpace;
 	}
@@ -66,8 +72,8 @@ void colorSquareCrossHairs(SDL_Renderer *renderer, int colorBarWidth, int colorB
 
 	SDL_Rect rwh;
    	rwh.x = colorBarWidth+colorBarWidthSpace;
-	rwh.y = mouseY-1;
-	if(mouseY > colorBarHeight)
+	rwh.y = currentPos.y - 1;
+	if(currentPos.y > colorBarHeight)
 	{
 		rwh.y = colorBarHeight-2;
 	}
@@ -84,8 +90,8 @@ void colorSquareCrossHairs(SDL_Renderer *renderer, int colorBarWidth, int colorB
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 
 	SDL_Rect rbv;
-   	rbv.x = mouseX;
-	if(mouseX < colorBarWidth+colorBarWidthSpace)
+   	rbv.x = currentPos.x;
+	if(currentPos.x < colorBarWidth+colorBarWidthSpace)
 	{
 		rbv.x = colorBarWidth+colorBarWidthSpace;
 	}
@@ -103,8 +109,8 @@ void colorSquareCrossHairs(SDL_Renderer *renderer, int colorBarWidth, int colorB
 
 	SDL_Rect rbh;
    	rbh.x = colorBarWidth+colorBarWidthSpace;
-	rbh.y = mouseY;
-	if(mouseY > colorBarHeight)
+	rbh.y = currentPos.y;
+	if(currentPos.y > colorBarHeight)
 	{
 		rbh.y = colorBarHeight-1;
 	}
@@ -170,7 +176,7 @@ void colorSquare(SDL_Renderer *renderer, float red, float green, float blue, int
 
 }
 		
-void colorOfCrossHairs(SDL_Renderer *renderer, int *redCH, int *greenCH, int *blueCH, float red, float green, float blue, int colorBarHeight, int colorBarWidth, int colorBarWidthSpace, int mouseX, int mouseY)
+void colorOfCrossHairs(SDL_Renderer *renderer, struct color *colorIn, float red, float green, float blue, int colorBarHeight, int colorBarWidth, int colorBarWidthSpace, struct mousePosition currentPos)
 {
 	
 	float xDifferenceRed = 255.0 - red;
@@ -202,17 +208,17 @@ void colorOfCrossHairs(SDL_Renderer *renderer, int *redCH, int *greenCH, int *bl
 		for(int x = 0; x < colorBarHeight; x++)
 		{
 
-			if(x == mouseX-colorBarWidth-colorBarWidthSpace && y == mouseY)
+			if(x == currentPos.x - colorBarWidth - colorBarWidthSpace && y == currentPos.y)
 			{
-				*redCH = currentRed;
-				*greenCH = currentGreen;
-				*blueCH = currentBlue;
+				colorIn->red = currentRed;
+				colorIn->green = currentGreen;
+				colorIn->blue = currentBlue;
 				return;
 			}
 
 			currentRed -= xRedDelta;
 			currentGreen -= xGreenDelta;
-				currentBlue -= xBlueDelta;
+			currentBlue -= xBlueDelta;
 
 			currentRed = currentRed > 255.0 ? 255 : currentRed;
 			currentGreen = currentGreen > 255.0 ? 255 : currentGreen;
@@ -305,14 +311,14 @@ void oDraw(SDL_Renderer *renderer, int topLeftY, int topLeftX, int red, int gree
 
 }
 
-int drawButton(SDL_Renderer *renderer, int buttonWidth, int buttonHeight, int buttonTopLeftY, int buttonTopLeftX, int buttonRed, int buttonGreen, int buttonBlue)
+int drawButton(SDL_Renderer *renderer, int buttonWidth, int buttonHeight, int buttonTopLeftY, int buttonTopLeftX, struct color buttonColor)
 {
 	int colorChange = -35;
 	int shadowSize = 3;
 
-	uint8_t shadowRed = buttonRed + colorChange > 255 ? 255 : buttonRed + colorChange;
-	uint8_t shadowGreen = buttonGreen + colorChange > 255 ? 255 : buttonGreen + colorChange;
-	uint8_t shadowBlue = buttonBlue + colorChange > 255 ? 255 : buttonBlue + colorChange;
+	uint8_t shadowRed = buttonColor.red + colorChange > 255 ? 255 : buttonColor.red + colorChange;
+	uint8_t shadowGreen = buttonColor.green + colorChange > 255 ? 255 : buttonColor.green + colorChange;
+	uint8_t shadowBlue = buttonColor.blue + colorChange > 255 ? 255 : buttonColor.blue + colorChange;
 
     SDL_SetRenderDrawColor(renderer, shadowRed, shadowGreen, shadowBlue, 255);
 
@@ -325,7 +331,7 @@ int drawButton(SDL_Renderer *renderer, int buttonWidth, int buttonHeight, int bu
 	SDL_RenderFillRect(renderer, &rBorder);
 
 	// Main grey Section of button
-    SDL_SetRenderDrawColor(renderer, buttonRed, buttonGreen, buttonBlue, 255);
+    SDL_SetRenderDrawColor(renderer, buttonColor.red, buttonColor.green, buttonColor.blue, 255);
 
 	SDL_Rect r;
    	r.x = buttonTopLeftX;
@@ -338,11 +344,16 @@ int drawButton(SDL_Renderer *renderer, int buttonWidth, int buttonHeight, int bu
 	return 0;
 }
 
-int colorPicker(int *finalRed, int *finalGreen, int *finalBlue)
+int colorPicker(struct color *selectedColor)
 {
 	uint8_t backgroundRed = 100;
 	uint8_t backgroundGreen = 100;
 	uint8_t backgroundBlue = 100;
+
+	struct color buttonColor;
+	buttonColor.red = 60;
+	buttonColor.green = 60;
+	buttonColor.blue = 60;
 
 	bool leftMouseButtonDown = false;
 	bool leftMouseButtonDownSquare = false;
@@ -373,8 +384,10 @@ int colorPicker(int *finalRed, int *finalGreen, int *finalBlue)
 	int colorSpaceBottom = 40;
 
 	// Mouse position on color square
-	int mouseX = 0;
-	int mouseY = 0;
+	struct mousePosition currentPos;
+	currentPos.x = 0;
+	currentPos.y = 0;
+
 
 	// Gap between vertial color bar and color square
 	int colorBarWidthSpace = 10;
@@ -383,6 +396,11 @@ int colorPicker(int *finalRed, int *finalGreen, int *finalBlue)
 	//int redCH = 0;
 	//int greenCH = 0;
 	//int blueCH = 0;
+
+	struct color crossHairs;
+	crossHairs.red = 0;
+	crossHairs.green = 0;
+	crossHairs.blue = 0;
 
     // Initialize SDL
     SDL_Init(SDL_INIT_VIDEO);	
@@ -452,8 +470,8 @@ int colorPicker(int *finalRed, int *finalGreen, int *finalBlue)
                 }
 				if (leftMouseButtonDownSquare)
 				{
-                    mouseX = event.motion.x;
-                    mouseY = event.motion.y;				
+                    currentPos.x = event.motion.x;
+                    currentPos.y = event.motion.y;				
 				}
                 break;
         }
@@ -464,15 +482,15 @@ int colorPicker(int *finalRed, int *finalGreen, int *finalBlue)
 		
 		colorSquare(renderer, red, green, blue, colorBarHeight, colorBarWidth, colorBarWidthSpace);
 		
-		colorSquareCrossHairs(renderer, colorBarWidth, colorBarWidthSpace, colorBarHeight, mouseX, mouseY);
+		colorSquareCrossHairs(renderer, colorBarWidth, colorBarWidthSpace, colorBarHeight, currentPos);
 
-		redCH = 0;
-		greenCH = 0;
-		blueCH = 0;
+		crossHairs.red = 0;
+		crossHairs.green = 0;
+		crossHairs.blue = 0;
 
-		colorOfCrossHairs(renderer, &redCH, &greenCH, &blueCH, red, green, blue, colorBarHeight, colorBarWidth, colorBarWidthSpace, mouseX, mouseY);
+		colorOfCrossHairs(renderer, &crossHairs, red, green, blue, colorBarHeight, colorBarWidth, colorBarWidthSpace, currentPos);
 	
-    	SDL_SetRenderDrawColor(renderer, redCH, greenCH, blueCH, 255);
+    	SDL_SetRenderDrawColor(renderer, crossHairs.red, crossHairs.green, crossHairs.blue, 255);
 		
 
 	    SDL_Rect currentColorRectangle;
@@ -485,10 +503,11 @@ int colorPicker(int *finalRed, int *finalGreen, int *finalBlue)
 		
 
 		int buttonWidth = 3 * (colorBarWidth+colorBarWidthSpace);
-		int sucess = drawButton(renderer, buttonWidth, colorBarWidth, colorBarHeight + colorBarWidthSpace, colorBarHeight + colorBarWidth - buttonWidth, 60, 60, 60);
+		int sucess = drawButton(renderer, buttonWidth, colorBarWidth, colorBarHeight + colorBarWidthSpace, colorBarHeight + colorBarWidth - buttonWidth, buttonColor);
+
 		if(sucess != 0)
 		{
-			fprintf(stderr, "Drawing Button not sucessful");
+			fprintf(stderr, "Drawing Button not sucessful\n");
 		}		
 
 		oDraw(renderer, colorBarHeight + colorBarWidthSpace, colorBarHeight + colorBarWidth - buttonWidth, 255, 255, 255);
@@ -503,9 +522,9 @@ int colorPicker(int *finalRed, int *finalGreen, int *finalBlue)
     SDL_DestroyWindow(window);
     SDL_Quit();
 
-	*finalRed = redCH; 
-	*finalGreen = greenCH;
-	*finalBlue = blueCH;
+	selectedColor->red = crossHairs.red; 
+	selectedColor->green = crossHairs.green;
+	selectedColor->blue = crossHairs.blue;
 
     return 0;
 }
@@ -514,11 +533,12 @@ int colorPicker(int *finalRed, int *finalGreen, int *finalBlue)
 // Remove main and integrate with program by calling colorPicker function
 int main()
 {
-	int red   = 0;
-	int green = 0;
-	int blue  = 0;
+	struct color selectedColor;
+	selectedColor.red = 0;
+	selectedColor.green = 0;
+	selectedColor.blue = 0;
 
-	int sucess = colorPicker(&red, &green, &blue);
+	int sucess = colorPicker(&selectedColor);
 	
 	//Failure
 	if(sucess != 0)
@@ -526,7 +546,7 @@ int main()
 		fprintf(stderr, "Something went wrong with colorPicker\n");
 	}
 
-	printf("(R, G, B) = (%d, %d, %d)\n", red, green, blue);
+	printf("(R, G, B) = (%d, %d, %d)\n", selectedColor.red, selectedColor.green, selectedColor.blue);
 
 	return 0;
 }
