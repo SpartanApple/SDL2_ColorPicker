@@ -2,6 +2,14 @@
 #include <math.h>
 #include <stdbool.h>
 
+
+struct color {
+	uint8_t red;
+	uint8_t green;
+	uint8_t blue;
+};
+
+
 // Draws horiontal line on the color selector bar
 void drawHorizontalZone(SDL_Renderer *renderer, int position)
 {
@@ -51,6 +59,8 @@ void colorSquareCrossHairs(SDL_Renderer *renderer, int colorBarWidth, int colorB
 
 	SDL_RenderFillRect(renderer, &rwv);
 
+
+
 	// Horizontal white outline
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
@@ -67,6 +77,9 @@ void colorSquareCrossHairs(SDL_Renderer *renderer, int colorBarWidth, int colorB
 	SDL_RenderFillRect(renderer, &rwh);
 
 
+
+
+
 	// Vertical black outline
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 
@@ -81,6 +94,9 @@ void colorSquareCrossHairs(SDL_Renderer *renderer, int colorBarWidth, int colorB
    	rbv.h = colorBarHeight;
 
 	SDL_RenderFillRect(renderer, &rbv);
+
+
+
 
 	// Horizontal black outline
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
@@ -291,6 +307,24 @@ void oDraw(SDL_Renderer *renderer, int topLeftY, int topLeftX, int red, int gree
 
 int drawButton(SDL_Renderer *renderer, int buttonWidth, int buttonHeight, int buttonTopLeftY, int buttonTopLeftX, int buttonRed, int buttonGreen, int buttonBlue)
 {
+	int colorChange = -35;
+	int shadowSize = 3;
+
+	uint8_t shadowRed = buttonRed + colorChange > 255 ? 255 : buttonRed + colorChange;
+	uint8_t shadowGreen = buttonGreen + colorChange > 255 ? 255 : buttonGreen + colorChange;
+	uint8_t shadowBlue = buttonBlue + colorChange > 255 ? 255 : buttonBlue + colorChange;
+
+    SDL_SetRenderDrawColor(renderer, shadowRed, shadowGreen, shadowBlue, 255);
+
+	SDL_Rect rBorder;
+   	rBorder.x = buttonTopLeftX - shadowSize;
+	rBorder.y = buttonTopLeftY - shadowSize;
+	rBorder.w = buttonWidth + shadowSize;
+    rBorder.h = buttonHeight + shadowSize;
+	
+	SDL_RenderFillRect(renderer, &rBorder);
+
+	// Main grey Section of button
     SDL_SetRenderDrawColor(renderer, buttonRed, buttonGreen, buttonBlue, 255);
 
 	SDL_Rect r;
@@ -306,6 +340,10 @@ int drawButton(SDL_Renderer *renderer, int buttonWidth, int buttonHeight, int bu
 
 int colorPicker(int *finalRed, int *finalGreen, int *finalBlue)
 {
+	uint8_t backgroundRed = 100;
+	uint8_t backgroundGreen = 100;
+	uint8_t backgroundBlue = 100;
+
 	bool leftMouseButtonDown = false;
 	bool leftMouseButtonDownSquare = false;
 
@@ -342,9 +380,9 @@ int colorPicker(int *finalRed, int *finalGreen, int *finalBlue)
 	int colorBarWidthSpace = 10;
 
 	// Stores color value "cross-hairs" are on in the color square
-	int redCH = 0;
-	int greenCH = 0;
-	int blueCH = 0;
+	//int redCH = 0;
+	//int greenCH = 0;
+	//int blueCH = 0;
 
     // Initialize SDL
     SDL_Init(SDL_INIT_VIDEO);	
@@ -447,7 +485,7 @@ int colorPicker(int *finalRed, int *finalGreen, int *finalBlue)
 		
 
 		int buttonWidth = 3 * (colorBarWidth+colorBarWidthSpace);
-		int sucess = drawButton(renderer, buttonWidth, colorBarWidth, colorBarHeight + colorBarWidthSpace, colorBarHeight + colorBarWidth - buttonWidth, 150, 150, 150);
+		int sucess = drawButton(renderer, buttonWidth, colorBarWidth, colorBarHeight + colorBarWidthSpace, colorBarHeight + colorBarWidth - buttonWidth, 60, 60, 60);
 		if(sucess != 0)
 		{
 			fprintf(stderr, "Drawing Button not sucessful");
@@ -456,7 +494,7 @@ int colorPicker(int *finalRed, int *finalGreen, int *finalBlue)
 		oDraw(renderer, colorBarHeight + colorBarWidthSpace, colorBarHeight + colorBarWidth - buttonWidth, 255, 255, 255);
 
 
-    	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    	SDL_SetRenderDrawColor(renderer, backgroundRed, backgroundGreen, backgroundBlue, 255);
 		
         SDL_RenderPresent(renderer);
     }
