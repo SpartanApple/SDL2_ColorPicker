@@ -346,9 +346,10 @@ int drawButton(SDL_Renderer *renderer, int buttonWidth, int buttonHeight, int bu
 
 int colorPicker(struct color *selectedColor)
 {
-	uint8_t backgroundRed = 100;
-	uint8_t backgroundGreen = 100;
-	uint8_t backgroundBlue = 100;
+	struct color backgroundColor;
+	backgroundColor.red = 100;
+	backgroundColor.green = 100;
+	backgroundColor.blue = 100;
 
 	struct color buttonColor;
 	buttonColor.red = 60;
@@ -513,7 +514,7 @@ int colorPicker(struct color *selectedColor)
 		oDraw(renderer, colorBarHeight + colorBarWidthSpace, colorBarHeight + colorBarWidth - buttonWidth, 255, 255, 255);
 
 
-    	SDL_SetRenderDrawColor(renderer, backgroundRed, backgroundGreen, backgroundBlue, 255);
+    	SDL_SetRenderDrawColor(renderer, backgroundColor.red, backgroundColor.green, backgroundColor.blue, 255);
 		
         SDL_RenderPresent(renderer);
     }
