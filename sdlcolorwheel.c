@@ -2,6 +2,7 @@
 #include <math.h>
 #include <stdbool.h>
 
+//#include "SDL/SDL_ttf.h"
 
 struct color {
 	uint8_t red;
@@ -42,9 +43,9 @@ void drawHorizontalZone(SDL_Renderer *renderer, int position)
 }
 
 // Checks if mouse position is within bounds of specific zone
-bool checkBounds(int xMin, int xMax, int yMin, int yMax, int x, int y)
+bool checkBounds(int xMin, int xMax, int yMin, int yMax, struct mousePosition mousePos)
 {
-	return (x > xMin && x < xMax && y > yMin && y < yMax);
+	return (mousePos.x > xMin && mousePos.x < xMax && mousePos.y > yMin && mousePos.y < yMax);
 }
 
 // Draws the cross Hairs on the color square of where the current mouse position is
@@ -448,18 +449,19 @@ int colorPicker(struct color *selectedColor)
                 if (event.button.button == SDL_BUTTON_LEFT)
 				{
 					// Used for bounds checking (within which section)
-					int xPos = event.motion.x;
-					int yPos = event.motion.y;
+					struct mousePosition boundCheckPos;
+					boundCheckPos.x = event.motion.x;
+					boundCheckPos.y = event.motion.y;
 
-					if(checkBounds(0, colorBarWidth, 0, colorBarHeight, xPos, yPos))
+					if(checkBounds(0, colorBarWidth, 0, colorBarHeight, boundCheckPos))
 					{
                     	leftMouseButtonDown = true;
 					}
-					if(checkBounds(colorBarWidth+colorBarWidthSpace, colorBarWidth+colorBarWidthSpace + colorBarHeight, 0, colorBarHeight, xPos, yPos))
+					if(checkBounds(colorBarWidth+colorBarWidthSpace, colorBarWidth+colorBarWidthSpace + colorBarHeight, 0, colorBarHeight, boundCheckPos))
 					{
                     	leftMouseButtonDownSquare = true;
 					}
-					if(checkBounds(colorBarHeight - (colorBarWidth+colorBarWidthSpace), colorBarHeight + colorBarWidth + colorBarWidthSpace, colorBarHeight + colorBarWidthSpace, colorBarHeight + colorBarWidthSpace + colorBarWidth, xPos, yPos))
+					if(checkBounds(colorBarHeight - (colorBarWidth+colorBarWidthSpace), colorBarHeight + colorBarWidth + colorBarWidthSpace, colorBarHeight + colorBarWidthSpace, colorBarHeight + colorBarWidthSpace + colorBarWidth, boundCheckPos))
 					{
 						running = false;
 					} 
