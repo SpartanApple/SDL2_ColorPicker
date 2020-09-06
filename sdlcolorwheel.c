@@ -2,7 +2,7 @@
 #include <math.h>
 #include <stdbool.h>
 
-//#include "SDL/SDL_ttf.h"
+#include "SDL2/SDL_ttf.h"
 
 struct color {
 	uint8_t red;
@@ -13,9 +13,7 @@ struct color {
 struct mousePosition {
 	uint32_t x;
 	uint32_t y;
-
 };
-
 
 // Draws horiontal line on the color selector bar
 void drawHorizontalZone(SDL_Renderer *renderer, int position)
@@ -296,20 +294,37 @@ void verticalColorSelector(SDL_Renderer *renderer, float red, float green, float
 		//printf("rgb = %f %f %f\n %d\n", red, green, blue, i);
 	}
 }
-
-void oDraw(SDL_Renderer *renderer, int topLeftY, int topLeftX, int red, int green, int blue)
+void drawbuttonLabel(SDL_Renderer *renderer, int buttonWidth, int buttonHeight, int buttonTopLeftY, int buttonTopLeftX, SDL_Color white)
 {
-	SDL_SetRenderDrawColor(renderer, red, green, blue, 255);
-	
-	SDL_RenderDrawPoint(renderer, topLeftX + 35, topLeftY + 8);
-	SDL_RenderDrawPoint(renderer, topLeftX + 36, topLeftY + 8);
-	SDL_RenderDrawPoint(renderer, topLeftX + 37, topLeftY + 8);
-	SDL_RenderDrawPoint(renderer, topLeftX + 38, topLeftY + 8);
-	SDL_RenderDrawPoint(renderer, topLeftX + 37, topLeftY + 9);
-	SDL_RenderDrawPoint(renderer, topLeftX + 38, topLeftY + 9);
-	SDL_RenderDrawPoint(renderer, topLeftX + 39, topLeftY + 10);
+    //TTF_Init();
+    if(TTF_Init()==-1) {
+        printf("TTF_Init: %s\n", TTF_GetError());
+        exit(2);
+    }
+    //TTF_Font *fontPointer = TTF_OpenFont("/home/mitch/colorWheel/SDL2_ColorPicker/ok.ttf", 24);    
+    //TTF_Font *fontPointer = TTF_OpenFont("new.ttf", 20);
+    TTF_Font *fontPointer = TTF_OpenFont("okFont.ttf", 20);
 
+    if(fontPointer == NULL)
+    {
+        printf("Failed to load font\n");
+    }
 
+    SDL_Surface *surfaceMessage = TTF_RenderText_Solid(fontPointer, "ok", white);
+
+    SDL_Texture *message = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
+
+    
+    SDL_Rect rect;
+    rect.x = buttonTopLeftX+(buttonWidth/4);
+    rect.y = buttonTopLeftY+4;
+    rect.w = buttonWidth/2;
+    rect.h = buttonHeight-4;
+
+    SDL_RenderCopy(renderer, message, NULL, &rect);
+
+    SDL_FreeSurface(surfaceMessage);
+    SDL_DestroyTexture(message);
 }
 
 int drawButton(SDL_Renderer *renderer, int buttonWidth, int buttonHeight, int buttonTopLeftY, int buttonTopLeftX, struct color buttonColor)
@@ -395,10 +410,6 @@ int colorPicker(struct color *selectedColor)
 	int colorBarWidthSpace = 10;
 
 	// Stores color value "cross-hairs" are on in the color square
-	//int redCH = 0;
-	//int greenCH = 0;
-	//int blueCH = 0;
-
 	struct color crossHairs;
 	crossHairs.red = 0;
 	crossHairs.green = 0;
@@ -513,8 +524,9 @@ int colorPicker(struct color *selectedColor)
 			fprintf(stderr, "Drawing Button not sucessful\n");
 		}		
 
-		oDraw(renderer, colorBarHeight + colorBarWidthSpace, colorBarHeight + colorBarWidth - buttonWidth, 255, 255, 255);
+        SDL_Color white = {255, 255, 255, 255};
 
+        drawbuttonLabel(renderer, buttonWidth, colorBarWidth, colorBarHeight + colorBarWidthSpace, colorBarHeight + colorBarWidth - buttonWidth, white);
 
     	SDL_SetRenderDrawColor(renderer, backgroundColor.red, backgroundColor.green, backgroundColor.blue, 255);
 		
