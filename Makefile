@@ -2,7 +2,7 @@ OBJ = sdlcolorwheel.c
 
 CC = gcc
 
-FLAGS = -lm -lSDL2 -lSDL2_ttf
+FLAGS = -lm $(shell pkg-config --libs --cflags SDL2 SDL2_ttf)
 
 OBJ_NAME = colorSelector
 
